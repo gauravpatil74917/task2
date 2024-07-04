@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stopwatch</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: powderblue;
+  }
+  .stopwatch {
+    margin-top: 50px;
+    font-size: 24px;
+  }
+  .lap-times {
+    margin-top: 20px;
+    font-size: 18px;
+    text-align: left;
+  }
+  .buttons {
+    margin-top: 20px;
+  }
+  button {
+    font-size: 18px;
+    padding: 10px 20px;
+    margin: 0 5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stopwatch">00:00:00</div>
+<div class="buttons">
+  <button onclick="startStop()">Start/Stop</button>
+  <button onclick="reset()">Reset</button>
+  <button onclick="recordLap()">Lap</button>
+</div>
+<div class="lap-times" id="lapTimes"></div>
+
+<script>
+  let timer;
+  let isRunning = false;
+  let startTime;
+  let elapsedTime = 0;
+  let laps = [];
+  let lapNumber = 0;
+
+  function startStop() {
+    if (isRunning) {
+      clearInterval(timer);
+      isRunning = false;
+    } else {
+      isRunning = true;
+      startTime = Date.now() - elapsedTime;
+      timer = setInterval(updateTime, 10);
+    }
+  }
+
+  function updateTime() {
+    const currentTime = Date.now();
+    elapsedTime = currentTime - startTime;
+    displayTime(elapsedTime);
+  }
+
+  function displayTime(time) {
+    const centiseconds = Math.floor(time / 10) % 100;
+    const seconds = Math.floor(time / 1000) % 60;
+    const minutes = Math.floor(time / (1000 * 60)) % 60;
+    const hours = Math.floor(time / (1000 * 60 * 60));
+
+    const formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(centiseconds)}`;
+    document.querySelector('.stopwatch').textContent = formattedTime;
+  }
+
+  function reset() {
+    clearInterval(timer);
+    isRunning = false;
+    elapsedTime = 0;
+    laps = [];
+    lapNumber = 0;
+    document.getElementById('lapTimes').textContent = '';
+    displayTime(elapsedTime);
+  }
+
+  function recordLap() {
+    if (isRunning) {
+      lapNumber++;
+      laps.push(elapsedTime);
+      const lapTime = laps[laps.length - 1];
+      const formattedLapTime = `${lapNumber}. ${formatLapTime(lapTime)}`;
+      const lapElement = document.createElement('div');
+      lapElement.textContent = formattedLapTime;
+      document.getElementById('lapTimes').appendChild(lapElement);
+    }
+  }
+
+  function formatLapTime(time) {
+    const centiseconds = Math.floor(time / 10) % 100;
+    const seconds = Math.floor(time / 1000) % 60;
+    const minutes = Math.floor(time / (1000 * 60)) % 60;
+    const hours = Math.floor(time / (1000 * 60 * 60));
+
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(centiseconds)}`;
+  }
+
+  function pad(number) {
+    return number < 10 ? '0' + number : number;
+  }
+</script>
+
+</body>
+</html>
